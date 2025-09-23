@@ -1,0 +1,28 @@
+{% load widget_tweaks %}
+
+<div class="{{ field.field.div_class }} 
+    {% if field.field.hidden %}hidden{% endif %}
+     " id="{{ field.id_for_label }}_container">
+
+    <label for="{{ field.id_for_label }}"
+           class="flex gap-x-1 font-medium text-slate-900">
+        {{ field.label }}
+
+        {% if field.field.required %}*{% endif %}
+
+
+    </label>
+
+    <c-field :field="field" />
+
+    {% if field.field.help_text %}
+
+        <span class="text-xs text-slate-500">{{ field.field.help_text|striptags }}</span>
+
+    {% endif %}
+
+
+    {% for error in field.errors %}<p class="text-red-400 text-sm">{{ error }}</p>{% endfor %}
+
+
+</div>

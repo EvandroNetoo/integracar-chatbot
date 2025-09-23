@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+    <div class="flex items-center justify-center h-full">
+        <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Login</h1>
+            <form method="post" class="space-y-6" autocomplete="off">
+                {% csrf_token %}
+
+                <c-form :form="form" />
+
+                <button type="submit"
+                        class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition duration-200">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+{% endblock body %}

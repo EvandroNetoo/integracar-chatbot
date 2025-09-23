@@ -4,12 +4,12 @@
 
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <title>Chatbot CAR</title>
 
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"
                 integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
                 crossorigin="anonymous"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
 
         {% block head %}
 
@@ -17,10 +17,14 @@
 
     </head>
     <body>
+        <div class="flex flex-col h-screen bg-gradient-to-br from-green-50 to-emerald-100">
+            <c-header />
 
-        {% block body %}
+            {% block body %}
 
-        {% endblock body %}
+            {% endblock body %}
 
-    </body>
+        </body>
+    </div>
+
 </html>

@@ -1,6 +1,6 @@
 from pathlib import Path
+
 from langchain_groq import ChatGroq
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_voyageai import VoyageAIEmbeddings
 from pydantic_settings import BaseSettings
 
@@ -14,6 +14,7 @@ class EnvSettings(BaseSettings):
     OPENAI_API_KEY: str = ''
     GROQ_API_KEY: str = ''
     VOYAGE_API_KEY: str = ''
+
 
 env = EnvSettings()
 
@@ -30,8 +31,8 @@ chat_model = ChatGroq(
     api_key=env.GROQ_API_KEY,
 )
 
-response = chat_model.invoke("oi")
-print(response.content)
+response = chat_model.invoke('oi')
+print(response.content)  # noqa
 
 
 # embedding_model = OpenAIEmbeddings(
@@ -44,5 +45,5 @@ embedding_model = VoyageAIEmbeddings(
     voyage_api_key=env.VOYAGE_API_KEY,
 )
 
-vector = embedding_model.embed_query("oi")
-print(len(vector), vector)
+vector = embedding_model.embed_query('oi')
+print(len(vector), vector)  # noqa

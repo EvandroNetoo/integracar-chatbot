@@ -1,0 +1,11 @@
+{% load widget_tweaks %}
+
+{% if field.field.widget.input_type in 'checkbox radio button' %}
+
+    {{ field }}
+
+{% else %}
+
+    {{ field|add_class:'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500' }}
+
+{% endif %}

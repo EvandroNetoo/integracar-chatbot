@@ -26,8 +26,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third-party apps
     'django_cotton',
+    'widget_tweaks',
     # Local apps
-    'accounts',
+    'contas',
     'chat',
 ]
 
@@ -72,13 +73,15 @@ DATABASES = {
 }
 
 
-# Password validation
+# Auth
 
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
 ]
+
+AUTH_USER_MODEL = 'contas.Usuario'
 
 
 # Internationalization
@@ -94,7 +97,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'templates/static']
+
+
+# Media files
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type

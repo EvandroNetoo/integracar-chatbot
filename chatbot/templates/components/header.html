@@ -1,0 +1,40 @@
+{% load static %}
+
+<header class="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-4 md:p-6 shadow-lg">
+    <div class="flex flex-col md:flex-row items-center md:justify-between gap-4 md:gap-0">
+        <a href="{% url 'chat' %}" class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                <img src="{% static 'img/car.png' %}" alt="">
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold">CAR Brasil - Assistente Virtual</h1>
+                <p class="text-green-100 text-xs md:text-sm">Cadastro Ambiental Rural - Tire suas dúvidas</p>
+            </div>
+        </a>
+
+        <nav class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 w-full md:w-auto">
+
+            {% if user.is_authenticated %}
+
+                <span class="text-green-100 text-sm">Olá, {{ user.name }}</span>
+                <a href="{% url 'chat' %}"
+                   class="px-4 py-2 rounded hover:bg-green-700 transition">Chat</a>
+                <a href="" class="px-4 py-2 rounded hover:bg-green-700 transition">Importar Documentos</a>
+                <form action="{% url 'logout' %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="bg-white text-green-700 px-4 py-2 rounded font-semibold hover:bg-green-100 transition">
+                        Sair
+                    </button>
+                </form>
+
+            {% else %}
+
+                <a href="{% url 'login' %}"
+                   class="bg-white text-green-700 px-4 py-2 rounded font-semibold hover:bg-green-100 transition">Entrar</a>
+
+            {% endif %}
+
+        </nav>
+    </div>
+</header>
