@@ -1,0 +1,22 @@
+{
+    "python.analysis.extraPaths": [
+        "chatbot",
+        "chatbot/apps",
+    ],
+    "python.autoComplete.extraPaths": [
+        "chatbot",
+        "chatbot/apps",
+    ],
+    "python.analysis.autoSearchPaths": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "django",
+            "depth": 20
+        },
+        {
+            "name": "langchain",
+            "depth": 20
+        },
+    ],
+}

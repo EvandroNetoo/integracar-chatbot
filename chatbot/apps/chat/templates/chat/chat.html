@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* Wrapper para o conteúdo Markdown */
+        .markdown {
+            font-family: inherit;
+            color: inherit;
+            line-height: 1.6;
+        }
+
+        /* Cabeçalhos */
+        .markdown h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .markdown h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-top: 1.75rem;
+            margin-bottom: 0.875rem;
+        }
+
+        .markdown h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .markdown h4 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1.25rem;
+            margin-bottom: 0.625rem;
+        }
+
+        .markdown h5 {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .markdown h6 {
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-top: 0.875rem;
+            margin-bottom: 0.4375rem;
+        }
+
+        /* Parágrafos */
+        .markdown p {
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Listas */
+        .markdown ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .markdown ol {
+            list-style-type: decimal;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .markdown li {
+            margin-top: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Links */
+        .markdown a {
+            color: #2563eb;
+            /* azul padrão */
+            text-decoration: underline;
+        }
+
+        /* Strong e Bold */
+        .markdown strong,
+        .markdown b {
+            font-weight: bold;
+        }
+
+        /* Italic */
+        .markdown em,
+        .markdown i {
+            font-style: italic;
+        }
+
+        /* Blockquotes */
+        .markdown blockquote {
+            border-left: 4px solid #d1d5db;
+            padding-left: 1rem;
+            color: #6b7280;
+            margin: 0.5rem 0;
+            font-style: italic;
+            background-color: #f9fafb;
+        }
+
+        /* Code inline */
+        .markdown code {
+            font-family: monospace;
+            background-color: #f3f4f6;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        /* Code block */
+        .markdown pre {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Horizontal rule */
+        .markdown hr {
+            border: none;
+            border-top: 1px solid #d1d5db;
+            margin: 1rem 0;
+        }
+
+        /* Imagens */
+        .markdown img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        /* Table */
+        .markdown table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .markdown th,
+        .markdown td {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            text-align: left;
+        }
+
+        .markdown th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+        }
+    </style>
+
+{% endblock head %}
+
+{% block body %}
+
+    <div class="flex flex-col h-screen bg-gradient-to-br from-green-50 to-emerald-100">
+        <header class="bg-gradient-to-r from-green-600 to-emerald-700 text-white p-6 shadow-lg">
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                    <c-chat.bot-svg />
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold">CAR Brasil - Assistente Virtual</h1>
+                    <p class="text-green-100 text-sm">Cadastro Ambiental Rural - Tire suas dúvidas</p>
+                </div>
+            </div>
+        </header>
+
+        <main id="chat-main" class="flex-grow p-6 overflow-y-auto">
+            <div class="max-w-4xl mx-auto" id="chat-container">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-4 border-l-4 border-green-500">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <c-chat.bot-svg />
+                        </div>
+                        <div>
+                            <p class="text-gray-800">Olá! Sou seu assistente virtual para o Cadastro Ambiental Rural (CAR). Posso ajudar com:</p>
+                            <ul class="mt-3 text-sm text-gray-600 space-y-1">
+                                <li>• Processo de cadastro e documentação necessária</li>
+                                <li>• Prazos e obrigações legais</li>
+                                <li>• Áreas de preservação permanente (APP)</li>
+                                <li>• Reserva legal e vegetação nativa</li>
+                                <li>• Retificação e atualização de dados</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <footer class="bg-white border-t border-gray-200 p-6 shadow-lg">
+                <div class="max-w-4xl mx-auto">
+                    <form action="#" id="send-form" class="flex items-center space-x-4">
+                        <div class="flex-grow relative">
+                            <input id="user-input"
+                                   class="w-full border-2 border-gray-300 rounded-2xl px-6 py-3 pr-12 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all resize-none"
+                                   placeholder="Digite sua pergunta sobre o CAR...">
+                        </input>
+                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2">
+                            <svg class="w-5 h-5 text-gray-400"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <button type="submit"
+                            id="send-button"
+                            class="max-h-12 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white px-8 py-3 rounded-full font-medium transition-all transform shadow-lg duration-200">
+                        Enviar
+                    </button>
+                </form>
+                <p class="text-xs text-gray-500 mt-3 text-center">
+                    Este assistente fornece informações gerais sobre o CAR. Para casos específicos, consulte os órgãos competentes.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        $('#send-button').on('click', function() {
+            const mensagem = $('#user-input').val();
+            if (!mensagem.trim()) return;
+
+            // Adiciona o balão do usuário
+            $('#chat-container').append(`<c-chat.user-message />`.replace('placeholder-mensagem', mensagem));
+
+            // Adiciona o balão do chatbot (vazio, para preencher com streaming)
+            const botBubble = $(`<c-chat.bot-message />`);
+
+            $('#chat-container').append(botBubble);
+
+            // Limpa o campo de entrada do usuário
+            $('#user-input').val('');
+
+            // Faz a requisição streaming
+            fetch('/chat/', {
+                method: 'POST',
+                body: (() => {
+                    const fd = new FormData();
+                    fd.append('mensagem', mensagem);
+                    fd.append('stream', 'true');
+                    return fd;
+                })()
+            }).then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                function read() {
+                    reader.read().then(({
+                        done,
+                        value
+                    }) => {
+                        if (done) return;
+                        buffer += decoder.decode(value, {
+                            stream: true
+                        });
+                        // Atualiza o conteúdo do balão do bot
+                        botBubble.find('.streaming-response').html(marked.parse(buffer));
+                        // Scroll automático
+                        $('#chat-container').scrollTop($('#chat-container')[0].scrollHeight);
+                        $("#chat-main").scrollTop($("#chat-main")[0].scrollHeight);
+                        read();
+
+                    });
+                }
+                read();
+            });
+        });
+    </script>
+
+{% endblock body %}
