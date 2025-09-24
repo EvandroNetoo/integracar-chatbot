@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block body %}
+
+    <div class="max-w-6xl w-full mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-6 text-center">Documentos</h1>
+        <div class="flex flex-col lg:flex-row gap-4 mb-8">
+            <div class="flex-1 bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center">
+                <span class="text-4xl font-extrabold text-blue-600 mb-2">{{ documentos_processados }}</span>
+                <span class="text-lg font-medium text-gray-700">Documentos Processados</span>
+            </div>
+            <div class="flex-1 bg-white rounded-lg shadow-md p-6 flex flex-col items-center justify-center">
+                <span class="text-4xl font-extrabold text-yellow-500 mb-2">{{ documentos_pendentes }}</span>
+                <span class="text-lg font-medium text-gray-700">Documentos a Processar</span>
+            </div>
+
+            <c-htmx-form url="{% url 'importar_documentos' %}" target="#importar-documentos-form" enctype="multipart/form-data" class="flex-1 bg-white rounded-lg shadow-md p-6 flex items-center justify-center gap-2">
+                <div id="importar-documentos-form">
+                    <c-form :form="importar_documentos_form" />
+                </div>
+                <c-green-btn class="!w-fit !h-full !px-1" type="submit">
+                    <svg class="w-5 h-full"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="2"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                </c-green-btn>
+            </c-htmx-form>
+
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold text-center mb-4">Lista de Documentos</h2>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data de Upload</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+
+                        {% for documento in documentos %}
+
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ documento.nome }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if documento.status == 'processado' %}bg-green-100 text-green-800{% endif %}
+  
+                                        {% if documento.status == 'processando' %}bg-blue-100 text-blue-800{% endif %}
+  
+                                        {% if documento.status == 'pendente' %}bg-yellow-100 text-yellow-800{% endif %}
+                                     ">{{ documento.get_status_display }}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ documento.criado_em }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <button class="text-blue-600 hover:underline">Visualizar</button>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock body %}

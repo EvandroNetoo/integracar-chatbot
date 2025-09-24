@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
+from django_htmx.http import HttpResponseClientRedirect
 
 from contas.forms import SigninForm
 
@@ -25,12 +26,12 @@ class SigninView(View):
             context = {
                 'form': form,
             }
-            return render(request, self.template_name, context)
+            return render(request, 'components/form.html', context)
 
         login(request, form.get_user())
 
         redirect_url = request.GET.get('next', '') or reverse('chat')
-        return redirect(redirect_url)
+        return HttpResponseClientRedirect(redirect_url)
 
 
 @method_decorator(login_required, name='dispatch')

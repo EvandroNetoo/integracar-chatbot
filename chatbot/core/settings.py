@@ -27,9 +27,10 @@ INSTALLED_APPS = [
     # Third-party apps
     'django_cotton',
     'widget_tweaks',
+    'django_q',
     # Local apps
     'contas',
-    'chat',
+    'ia',
 ]
 
 MIDDLEWARE = [
@@ -67,8 +68,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ragdb',
+        'USER': 'user',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -116,3 +121,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Django Cotton settings
 
 COTTON_DIR = 'components'
+
+
+Q_CLUSTER = {
+    'name': 'chatbot-integracar',
+    'workers': 2,
+    'timeout': 100,
+    'retry': 120,
+    'queue_limit': 50,
+    'orm': 'default',
+}

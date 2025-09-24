@@ -9,8 +9,10 @@ class SigninForm(AuthenticationForm):
         )
 
     def __init__(self, *args, **kwargs):
+        kwargs['use_required_attribute'] = False
         super().__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['autofocus'] = True
+
+        self.fields['username'].widget.attrs['autofocus'] = False
 
         placeholders = {
             'username': 'Digite seu email',

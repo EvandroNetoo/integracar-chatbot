@@ -1,0 +1,44 @@
+from __future__ import annotations
+
+from django.core.validators import FileExtensionValidator
+from django.db import models
+from pgvector.django import VectorField
+
+
+class DocumentoStatusChoices(models.TextChoices):
+    PENDENTE = 'pendente', 'Pendente'
+    PROCESSANDO = 'processando', 'Processando'
+    PROCESSADO = 'processado', 'Processado'
+
+
+class Documento(models.Model):
+    nome = models.CharField(max_length=255, blank=True)
+    arquivo = models.FileField(
+        upload_to='documentos/',
+        validators=[FileExtensionValidator(['pdf'])],
+    )
+    conteudo = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=DocumentoStatusChoices.choices,
+        default=DocumentoStatusChoices.PENDENTE,
+    )
+
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    embeddings: models.QuerySet[EmbeddingDocumento]
+
+    def __str__(self):
+        return self.nome
+
+
+class EmbeddingDocumento(models.Model):
+    documento = models.ForeignKey(
+        Documento, on_delete=models.CASCADE, related_name='embeddings'
+    )
+    conteudo = models.TextField()
+    embedding = VectorField(dimensions=1024)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.conteudo[:50]

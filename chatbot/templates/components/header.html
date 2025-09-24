@@ -19,7 +19,8 @@
                 <span class="text-green-100 text-sm">Olá, {{ user.name }}</span>
                 <a href="{% url 'chat' %}"
                    class="px-4 py-2 rounded hover:bg-green-700 transition">Chat</a>
-                <a href="" class="px-4 py-2 rounded hover:bg-green-700 transition">Importar Documentos</a>
+                <a href="{% url 'documentos' %}"
+                   class="px-4 py-2 rounded hover:bg-green-700 transition">Documentos</a>
                 <form action="{% url 'logout' %}" method="post" class="inline">
                     {% csrf_token %}
                     <button type="submit"

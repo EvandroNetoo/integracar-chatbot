@@ -18,5 +18,9 @@
             "name": "langchain",
             "depth": 20
         },
+        {
+            "name": "django_htmx",
+            "depth": 20
+        },
     ],
 }
