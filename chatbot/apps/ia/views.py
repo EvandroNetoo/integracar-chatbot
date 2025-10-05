@@ -44,12 +44,18 @@ class ChatView(View):
             SystemMessage('Adicione emojis quando fizer sentido.'),
             SystemMessage(
                 (
-                    f'Use as seguintes informações de contexto para responder à pergunta:\n\n{contexto}\n\n'
-                    'Se não encontrar a resposta no contexto, responda que não encontrou.'
+                    f'Você é uma IA que auxilia pessoas responsáveis pelo CAR no Espírito Santo. '
+                    f'Sua resposta deve se basear **exclusivamente** nas informações do contexto abaixo:'
+                    f'\n\n{contexto}\n\n'
+                    '⚠️ Regras importantes:\n'
+                    '- Se a resposta não estiver clara ou presente no contexto, responda exatamente: "Não tenho informações sobre isso".\n'
+                    '- Não invente, não faça suposições e não utilize conhecimento externo ao contexto.\n'
+                    '- Antes de responder, verifique cuidadosamente se a informação está no contexto.\n'
                 )
             ),
             HumanMessage(mensagem),
         ]
+
 
         if not stream:
             resposta = chat_model.invoke(mensagens).content

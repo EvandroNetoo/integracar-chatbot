@@ -18,7 +18,8 @@ def gerar_embedding_documento(documento_id: int):
     conteudo = PyPDFLoader(documento.arquivo.path, mode='single').load()
 
     chunks = text_splitter.split_documents(conteudo)
-    chunks = [chunk.page_content for chunk in chunks]
+    chunks = [chunk.page_content.replace('\n', '') for chunk in chunks]
+
     embeddings = embedding_model.embed_documents(chunks)
 
     embeddings = [

@@ -64,7 +64,9 @@
 </footer>
 
 <script>
-    $('#send-button').on('click', function() {
+    $('#send-form').on('submit', function(event) {
+        event.preventDefault();
+
         const mensagem = $('#user-input').val();
         if (!mensagem.trim()) return;
 
