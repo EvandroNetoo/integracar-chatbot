@@ -56,7 +56,6 @@ class ChatView(View):
             HumanMessage(mensagem),
         ]
 
-
         if not stream:
             resposta = chat_model.invoke(mensagens).content
             return JsonResponse({'resposta': resposta})

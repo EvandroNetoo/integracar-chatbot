@@ -4,6 +4,8 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from pgvector.django import VectorField
 
+from ia.indexes import BM25Index
+
 
 class DocumentoStatusChoices(models.TextChoices):
     PENDENTE = 'pendente', 'Pendente'
@@ -39,6 +41,14 @@ class EmbeddingDocumento(models.Model):
     conteudo = models.TextField()
     embedding = VectorField(dimensions=1024)
     criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            BM25Index(
+                fields=['id', 'conteudo'],
+                name='bm25_index_conteudo',
+            ),
+        ]
 
     def __str__(self):
         return self.conteudo[:50]
