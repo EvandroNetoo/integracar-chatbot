@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Value
 from django.http import (
     HttpRequest,
     JsonResponse,
@@ -14,12 +15,19 @@ from modelos_ia import chat_model, embedding_model
 from pgvector.django import CosineDistance
 
 from ia.forms import ImportarDocumentosForm
-from ia.models import Documento, DocumentoStatusChoices, EmbeddingDocumento
+from ia.functions import BM25Score, PdbQueryCast
+from ia.models import ChunkDocumeto, Documento, DocumentoStatusChoices
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ChatView(View):
     def get(self, request: HttpRequest):
+        q = (
+            ChunkDocumeto.objects.filter(
+                conteudo__bm25=PdbQueryCast(Value('{"match": {"value": "Jaimel"}}')))
+            .annotate(score=BM25Score('id'))
+            .order_by('-score')
+        )
         return render(request, 'ia/chat.html')
 
     def post(self, request: HttpRequest):
@@ -31,7 +39,7 @@ class ChatView(View):
 
         embedding_mensagem = embedding_model.embed_query(mensagem)
 
-        documentos_relevantes = EmbeddingDocumento.objects.order_by(
+        documentos_relevantes = ChunkDocumeto.objects.order_by(
             CosineDistance('embedding', embedding_mensagem)
         )[:5]
 

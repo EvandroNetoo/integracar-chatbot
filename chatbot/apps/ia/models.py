@@ -2,9 +2,17 @@ from __future__ import annotations
 
 from django.core.validators import FileExtensionValidator
 from django.db import models
+from django.db.models import Field
+from django.db.models.lookups import PostgresOperatorLookup
 from pgvector.django import VectorField
 
 from ia.indexes import BM25Index
+
+
+@Field.register_lookup
+class BM25(PostgresOperatorLookup):
+    lookup_name = 'bm25'
+    postgres_operator = '@@@'
 
 
 class DocumentoStatusChoices(models.TextChoices):
@@ -28,13 +36,13 @@ class Documento(models.Model):
 
     criado_em = models.DateTimeField(auto_now_add=True)
 
-    embeddings: models.QuerySet[EmbeddingDocumento]
+    embeddings: models.QuerySet[ChunkDocumeto]
 
     def __str__(self):
         return self.nome
 
 
-class EmbeddingDocumento(models.Model):
+class ChunkDocumeto(models.Model):
     documento = models.ForeignKey(
         Documento, on_delete=models.CASCADE, related_name='embeddings'
     )
@@ -46,6 +54,7 @@ class EmbeddingDocumento(models.Model):
         indexes = [
             BM25Index(
                 fields=['id', 'conteudo'],
+                key_field='id',
                 name='bm25_index_conteudo',
             ),
         ]

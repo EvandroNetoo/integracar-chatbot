@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from ia.models import Documento, EmbeddingDocumento
+from ia.models import ChunkDocumeto, Documento
 
 admin.site.register(Documento)
-admin.site.register(EmbeddingDocumento)
+admin.site.register(ChunkDocumeto)

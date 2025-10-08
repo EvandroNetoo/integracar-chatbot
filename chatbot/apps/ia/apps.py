@@ -7,3 +7,4 @@ class IAConfig(AppConfig):
 
     def ready(self):
         import ia.signals  # noqa
+        import ia.lookups  # noqa
