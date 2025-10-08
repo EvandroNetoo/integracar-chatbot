@@ -26,8 +26,8 @@ class Rag:
     )
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
+        chunk_size=200,
+        chunk_overlap=0,
     )
 
     @staticmethod
@@ -98,12 +98,10 @@ class Rag:
 
     @staticmethod
     def top_k_chunks(query: str, k: int = 5) -> list[str]:
-        top_k_bm25 = Rag.top_k_bm25(query, k)
+        # top_k_bm25 = Rag.top_k_bm25(query, k)
         top_k_similar = Rag.top_k_similar(query, k)
 
-        return [c.conteudo for c in top_k_similar] + [
-            c.conteudo for c in top_k_bm25
-        ]
+        return [c.conteudo for c in top_k_similar]
 
     @staticmethod
     def run(query: str) -> Generator[str, None, None]:
@@ -115,7 +113,7 @@ class Rag:
             SystemMessage('Adicione emojis quando fizer sentido.'),
             SystemMessage(
                 (
-                    f'Você é uma IA que auxilia pessoas com informações sobre o genesis as informações sobre ele esta no contexto. '
+                    f'Você é uma IA que auxilia pessoas com informações que estão no contexto. '
                     f'Sua resposta deve se basear **exclusivamente** nas informações do contexto abaixo:'
                     f'\n\n{contexto}\n\n'
                     '⚠️ Regras importantes:\n'
