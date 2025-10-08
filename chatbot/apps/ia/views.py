@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Value
 from django.http import (
     HttpRequest,
     JsonResponse,
@@ -10,25 +9,73 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django_htmx.http import HttpResponseClientRefresh
-from langchain_core.messages import HumanMessage, SystemMessage
-from modelos_ia import chat_model, embedding_model
-from pgvector.django import CosineDistance
 
 from ia.forms import ImportarDocumentosForm
-from ia.functions import BM25Score, PdbQueryCast
-from ia.models import ChunkDocumeto, Documento, DocumentoStatusChoices
+from ia.models import Documento, StatusDocumento
+from ia.rag import Rag
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ChatView(View):
     def get(self, request: HttpRequest):
-        q = (
-            ChunkDocumeto.objects.filter(
-                conteudo__bm25=PdbQueryCast(Value('{"match": {"value": "Jaimel"}}')))
-            .annotate(score=BM25Score('id'))
-            .order_by('-score')
-        )
+        # q = (
+        #     ChunkDocumeto.objects.filter(
+        #         conteudo__bm25=PdbQueryCast(Value('{"match": {"value": "Jaimel"}}')))
+        #     .annotate(score=BM25Score('id'))
+        #     .order_by('-score')
+        # )
         return render(request, 'ia/chat.html')
+
+    # def post(self, request: HttpRequest):
+    #     mensagem = request.POST.get('mensagem', '')
+    #     stream = request.POST.get('stream', '')
+
+    #     if not mensagem:
+    #         return JsonResponse({'resposta': 'Mensagem vazia'}, status=400)
+
+    #     embedding_mensagem = embedding_model.embed_query(mensagem)
+
+    #     documentos_relevantes = ChunkDocumeto.objects.annotate(
+    #         score=L2Distance(
+    #             'embedding',
+    #             embedding_mensagem,
+    #         ),
+    #     ).order_by('-score')[:5]
+
+    #     print('Documentos relevantes:')
+    #     for doc in documentos_relevantes:
+    #         print(f'- Score: {doc.score}, Conteúdo: {doc.conteudo[:30]}')
+
+    #     contexto = '\n\n'.join([doc.conteudo for doc in documentos_relevantes])
+
+    #     # 4. Montar a lista de mensagens
+    #     mensagens = [
+    #         SystemMessage('Responda em português.'),
+    #         SystemMessage('Responda utilizando Markdown.'),
+    #         SystemMessage('Adicione emojis quando fizer sentido.'),
+    #         SystemMessage(
+    #             (
+    #                 f'Você é uma IA que auxilia pessoas responsáveis pelo CAR no Espírito Santo. '
+    #                 f'Sua resposta deve se basear **exclusivamente** nas informações do contexto abaixo:'
+    #                 f'\n\n{contexto}\n\n'
+    #                 '⚠️ Regras importantes:\n'
+    #                 '- Se a resposta não estiver clara ou presente no contexto, responda exatamente: "Não tenho informações sobre isso".\n'
+    #                 '- Não invente, não faça suposições e não utilize conhecimento externo ao contexto.\n'
+    #                 '- Antes de responder, verifique cuidadosamente se a informação está no contexto.\n'
+    #             )
+    #         ),
+    #         HumanMessage(mensagem),
+    #     ]
+
+    #     if not stream:
+    #         resposta = chat_model.invoke(mensagens).content
+    #         return JsonResponse({'resposta': resposta})
+
+    #     def funcao_stream():
+    #         for resposta in chat_model.stream(mensagens):
+    #             yield resposta.content
+
+    #     return StreamingHttpResponse(funcao_stream())
 
     def post(self, request: HttpRequest):
         mensagem = request.POST.get('mensagem', '')
@@ -37,42 +84,13 @@ class ChatView(View):
         if not mensagem:
             return JsonResponse({'resposta': 'Mensagem vazia'}, status=400)
 
-        embedding_mensagem = embedding_model.embed_query(mensagem)
-
-        documentos_relevantes = ChunkDocumeto.objects.order_by(
-            CosineDistance('embedding', embedding_mensagem)
-        )[:5]
-
-        contexto = '\n\n'.join([doc.conteudo for doc in documentos_relevantes])
-
-        # 4. Montar a lista de mensagens
-        mensagens = [
-            SystemMessage('Responda em português.'),
-            SystemMessage('Responda utilizando Markdown.'),
-            SystemMessage('Adicione emojis quando fizer sentido.'),
-            SystemMessage(
-                (
-                    f'Você é uma IA que auxilia pessoas responsáveis pelo CAR no Espírito Santo. '
-                    f'Sua resposta deve se basear **exclusivamente** nas informações do contexto abaixo:'
-                    f'\n\n{contexto}\n\n'
-                    '⚠️ Regras importantes:\n'
-                    '- Se a resposta não estiver clara ou presente no contexto, responda exatamente: "Não tenho informações sobre isso".\n'
-                    '- Não invente, não faça suposições e não utilize conhecimento externo ao contexto.\n'
-                    '- Antes de responder, verifique cuidadosamente se a informação está no contexto.\n'
-                )
-            ),
-            HumanMessage(mensagem),
-        ]
+        resposta = Rag.run(mensagem)
 
         if not stream:
-            resposta = chat_model.invoke(mensagens).content
+            resposta = ''.join(resposta)
             return JsonResponse({'resposta': resposta})
 
-        def funcao_stream():
-            for resposta in chat_model.stream(mensagens):
-                yield resposta.content
-
-        return StreamingHttpResponse(funcao_stream())
+        return StreamingHttpResponse(resposta)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -83,13 +101,13 @@ class DocumentosView(View):
         documentos = Documento.objects.all()
 
         documentos_processados = documentos.filter(
-            status=DocumentoStatusChoices.PROCESSADO
+            status=StatusDocumento.PROCESSADO
         ).count()
 
         documentos_pendentes = documentos.filter(
             status__in=[
-                DocumentoStatusChoices.PENDENTE,
-                DocumentoStatusChoices.PROCESSANDO,
+                StatusDocumento.PENDENTE,
+                StatusDocumento.PROCESSANDO,
             ]
         ).count()
 

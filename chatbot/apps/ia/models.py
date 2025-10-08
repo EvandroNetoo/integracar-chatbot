@@ -15,7 +15,7 @@ class BM25(PostgresOperatorLookup):
     postgres_operator = '@@@'
 
 
-class DocumentoStatusChoices(models.TextChoices):
+class StatusDocumento(models.TextChoices):
     PENDENTE = 'pendente', 'Pendente'
     PROCESSANDO = 'processando', 'Processando'
     PROCESSADO = 'processado', 'Processado'
@@ -30,8 +30,8 @@ class Documento(models.Model):
     conteudo = models.TextField(blank=True)
     status = models.CharField(
         max_length=20,
-        choices=DocumentoStatusChoices.choices,
-        default=DocumentoStatusChoices.PENDENTE,
+        choices=StatusDocumento.choices,
+        default=StatusDocumento.PENDENTE,
     )
 
     criado_em = models.DateTimeField(auto_now_add=True)
@@ -44,7 +44,9 @@ class Documento(models.Model):
 
 class ChunkDocumeto(models.Model):
     documento = models.ForeignKey(
-        Documento, on_delete=models.CASCADE, related_name='embeddings'
+        Documento,
+        on_delete=models.CASCADE,
+        related_name='embeddings',
     )
     conteudo = models.TextField()
     embedding = VectorField(dimensions=1024)

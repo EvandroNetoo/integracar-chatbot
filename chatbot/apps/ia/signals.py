@@ -1,9 +1,9 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django_q.tasks import async_task
+from django_q.tasks import Chain
 
 from ia.models import Documento
-from ia.tasks import gerar_embedding_documento
+from ia.rag import Rag
 
 
 @receiver(pre_save, sender=Documento)
@@ -19,5 +19,8 @@ def create_embedding_documento(
     created: bool,
     **kwargs,
 ):
-    if created:
-        async_task(gerar_embedding_documento, instance.id)
+    if not instance.conteudo:
+        chain = Chain()
+        chain.append(Rag.extrair_e_salvar_conteudo, id_documento=instance.id)
+        chain.append(Rag.gerar_e_embedar_chunks, id_documento=instance.id)
+        chain.run()

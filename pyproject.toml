@@ -48,7 +48,7 @@ format = "ruff check . --fix && ruff format . && djlint . --reformat --quiet"
 
 [tool.ruff]
 line-length = 79
-extend-exclude = ["migrations"]
+extend-exclude = ["migrations", "postgres_data"]
 
 
 [tool.ruff.lint]

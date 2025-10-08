@@ -2,12 +2,12 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import TokenTextSplitter
 from modelos_ia import embedding_model
 
-from ia.models import ChunkDocumeto, Documento, DocumentoStatusChoices
+from ia.models import ChunkDocumeto, Documento, StatusDocumento
 
 
 def gerar_embedding_documento(documento_id: int):
     documento = Documento.objects.get(id=documento_id)
-    documento.status = DocumentoStatusChoices.PROCESSANDO
+    documento.status = StatusDocumento.PROCESSANDO
     documento.save()
 
     text_splitter = TokenTextSplitter(
@@ -34,5 +34,5 @@ def gerar_embedding_documento(documento_id: int):
     documento.embeddings.all().delete()
 
     ChunkDocumeto.objects.bulk_create(embeddings)
-    documento.status = DocumentoStatusChoices.PROCESSADO
+    documento.status = StatusDocumento.PROCESSADO
     documento.save()
