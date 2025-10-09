@@ -49,7 +49,7 @@ class ChunkDocumeto(models.Model):
         related_name='embeddings',
     )
     conteudo = models.TextField()
-    embedding = VectorField(dimensions=1024)
+    embedding = VectorField(dimensions=1536)
     criado_em = models.DateTimeField(auto_now_add=True)
 
     class Meta:

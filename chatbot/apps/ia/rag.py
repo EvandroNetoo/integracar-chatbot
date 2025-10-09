@@ -1,11 +1,13 @@
+import re
+from math import ceil, floor
 from typing import Generator
 
 from core.env import env
 from django.db.models import QuerySet, Value
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pgvector.django import CosineDistance
 
 from ia.functions import BM25Score, PdbQueryCast
@@ -14,20 +16,20 @@ from ia.models import ChunkDocumeto, Documento, StatusDocumento
 
 class Rag:
     chat = ChatOpenAI(
-        model='gpt-4.1-2025-04-14',
+        model='gpt-4.1-mini-2025-04-14',
         temperature=0.5,
         api_key=env.OPENAI_API_KEY,
     )
 
     embedding = OpenAIEmbeddings(
-        model='text-embedding-3-large',
-        dimensions=1024,
+        model='text-embedding-3-small',
+        dimensions=1536,
         api_key=env.OPENAI_API_KEY,
     )
 
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=200,
-        chunk_overlap=0,
+        chunk_size=1000,
+        chunk_overlap=200,
     )
 
     @staticmethod
@@ -39,11 +41,7 @@ class Rag:
             for d in PyPDFLoader(documento.arquivo.path, mode='single').load()
         ])
 
-        while '\n' in conteudo:
-            conteudo = conteudo.replace('\n', ' ')
-
-        while '  ' in conteudo:
-            conteudo = conteudo.replace('  ', ' ')
+        conteudo = re.sub(r'\s+', ' ', conteudo).strip()
 
         documento.conteudo = conteudo
         documento.save()
@@ -87,25 +85,29 @@ class Rag:
     @staticmethod
     def top_k_similar(query: str, k: int) -> QuerySet[ChunkDocumeto]:
         embedding_query = Rag.embedding.embed_query(query)
+
         qs = ChunkDocumeto.objects.annotate(
             score=CosineDistance(
                 'embedding',
                 embedding_query,
             ),
-        ).order_by('-score')[:k]
+        ).order_by('score')[:k]
 
         return qs
 
     @staticmethod
     def top_k_chunks(query: str, k: int = 5) -> list[str]:
-        # top_k_bm25 = Rag.top_k_bm25(query, k)
-        top_k_similar = Rag.top_k_similar(query, k)
+        top_k_bm25 = Rag.top_k_bm25(query, floor(k / 2))
+        top_k_similar = Rag.top_k_similar(query, ceil(k / 2))
 
-        return [c.conteudo for c in top_k_similar]
+        return set(
+            [c.conteudo for c in top_k_bm25]
+            + [c.conteudo for c in top_k_similar]
+        )
 
     @staticmethod
     def run(query: str) -> Generator[str, None, None]:
-        contexto = '\n\n'.join(Rag.top_k_chunks(query, k=10))
+        contexto = '\n\n\n'.join(Rag.top_k_chunks(query, k=10))
 
         mensagens = [
             SystemMessage('Responda em português.'),
@@ -118,7 +120,7 @@ class Rag:
                     f'\n\n{contexto}\n\n'
                     '⚠️ Regras importantes:\n'
                     '- Se a resposta não estiver clara ou presente no contexto, responda exatamente: "Não tenho informações sobre isso".\n'
-                    '- Não invente, não faça suposições e não utilize conhecimento externo ao contexto.\n'
+                    '- Não invente, não faça suposições e não utiliz    e conhecimento externo ao contexto.\n'
                     '- Antes de responder, verifique cuidadosamente se a informação está no contexto.\n'
                 )
             ),
