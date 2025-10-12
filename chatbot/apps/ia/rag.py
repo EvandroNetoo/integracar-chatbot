@@ -1,9 +1,11 @@
 import re
-from math import ceil, floor
 from typing import Generator
 
 from core.env import env
-from django.db.models import QuerySet, Value
+from django.db.models import (
+    QuerySet,
+    Value,
+)
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -97,13 +99,42 @@ class Rag:
 
     @staticmethod
     def top_k_chunks(query: str, k: int = 5) -> list[str]:
-        top_k_bm25 = Rag.top_k_bm25(query, floor(k / 2))
-        top_k_similar = Rag.top_k_similar(query, ceil(k / 2))
+        embedding_query = Rag.embedding.embed_query(query)
 
-        return set(
-            [c.conteudo for c in top_k_bm25]
-            + [c.conteudo for c in top_k_similar]
+        bm25_search = '{"match": {"value": "{%s}"}}' % query
+        qs = ChunkDocumeto.objects.raw(
+            f"""
+            WITH bm25_ranked AS (
+                SELECT id, RANK() OVER (ORDER BY score DESC) AS rank
+                FROM (
+                SELECT id, paradedb.score(id) AS score
+                FROM ia_chunkdocumeto
+                WHERE conteudo @@@ '{bm25_search}'::pdb.query
+                ORDER BY paradedb.score(id) DESC
+                LIMIT 20
+                ) AS bm25_score
+            ),
+            semantic_search AS (
+                SELECT id, RANK() OVER (ORDER BY embedding <=> '{embedding_query}') AS rank
+                FROM ia_chunkdocumeto
+                ORDER BY embedding <=> '{embedding_query}'
+                LIMIT 20
+            )
+            SELECT
+                COALESCE(semantic_search.id, bm25_ranked.id) AS id,
+                COALESCE(1.0 / (60 + semantic_search.rank), 0.0) +
+                COALESCE(1.0 / (60 + bm25_ranked.rank), 0.0) AS score,
+                ia_chunkdocumeto.conteudo,
+                ia_chunkdocumeto.embedding
+            FROM semantic_search
+            FULL OUTER JOIN bm25_ranked ON semantic_search.id = bm25_ranked.id
+            JOIN ia_chunkdocumeto ON ia_chunkdocumeto.id = COALESCE(semantic_search.id, bm25_ranked.id)
+            ORDER BY score DESC, conteudo
+            LIMIT 10;
+        """
         )
+
+        return [chunk.conteudo for chunk in qs]
 
     @staticmethod
     def run(query: str) -> Generator[str, None, None]:
